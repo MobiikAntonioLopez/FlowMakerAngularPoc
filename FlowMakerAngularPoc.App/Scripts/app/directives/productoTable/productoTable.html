@@ -1,0 +1,98 @@
+﻿<br />
+<!--Vars-->
+<span ng-init="uiVars.productsVar={};"></span>
+
+<span ng-init="uiVars.productsVar.filterBy='';"></span>
+<span ng-init="uiVars.productsVar.orderBy=uiVars.productsVar.ID;"></span>
+<span ng-init="uiVars.productsVar.reverseZA=false;"></span>
+
+<span ng-init="uiVars.productsVar.itemsPerPage='2';"></span>
+<span ng-init="uiVars.productsVar.limintNumberForPaginationSize=5;"></span>
+<span ng-init="uiVars.productsVar.currentPageNumber=1;"></span>
+
+<span ng-init="uiVars.productsVar.ID='id';"></span>
+<span ng-init="uiVars.productsVar.NAME='name';"></span>
+<span ng-init="uiVars.productsVar.CATEGORY='category';"></span>
+<span ng-init="uiVars.productsVar.PRICE='price';"></span>
+
+<!--Filter and Button options-->
+<div class="row">
+    <div class="col-sm-7 col-md-8 col-lg-9">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">@</span>
+            <input type="text" class="form-control" placeholder="{{getBoxedMessage('PLACEHOLDER_TEXT_FILYER_BY')}}" ng-model="uiVars.productsVar.filterBy">
+        </div>
+    </div>
+    <div class="col-sm-5 col-md-4 col-lg-3">
+        <div>
+            <button type="button" class="btn btn-default" boxed-message="TEXT_BUTTON_GET_PRODUCTS" ng-click="getAllProductsButton();"></button>
+        </div>
+    </div>
+</div>
+
+<!--Table-->
+<div>
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th class="pointer-cursor-custome" ng-click="uiVars.productsVar.orderBy=uiVars.productsVar.ID; uiVars.productsVar.reverseZA=!uiVars.productsVar.reverseZA;">
+                    <span boxed-message="COLUMN_TEXT_ID"></span>
+                    <span ng-if="uiVars.productsVar.orderBy==uiVars.productsVar.ID">
+                        <span ng-if="!uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes sort-button" aria-hidden="true"></span>
+                        <span ng-if="uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes-alt sort-button" aria-hidden="true"></span>
+                    </span>
+                </th>
+                <th class="pointer-cursor-custome" ng-click="uiVars.productsVar.orderBy=uiVars.productsVar.NAME; uiVars.productsVar.reverseZA=!uiVars.productsVar.reverseZA;">
+                    <span boxed-message="COLUMN_TEXT_NAME"></span>
+                    <span ng-if="uiVars.productsVar.orderBy==uiVars.productsVar.NAME">
+                        <span ng-if="!uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes sort-button" aria-hidden="true"></span>
+                        <span ng-if="uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes-alt sort-button" aria-hidden="true"></span>
+                    </span>
+                </th>
+                <th class="pointer-cursor-custome" ng-click="uiVars.productsVar.orderBy=uiVars.productsVar.CATEGORY; uiVars.productsVar.reverseZA=!uiVars.productsVar.reverseZA;">
+                    <span boxed-message="COLUMN_TEXT_CATEORY"></span>
+                    <span ng-if="uiVars.productsVar.orderBy==uiVars.productsVar.CATEGORY">
+                        <span ng-if="!uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes sort-button" aria-hidden="true"></span>
+                        <span ng-if="uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes-alt sort-button" aria-hidden="true"></span>
+                    </span>
+                </th>
+                <th class="pointer-cursor-custome" ng-click="uiVars.productsVar.orderBy=uiVars.productsVar.PRICE; uiVars.productsVar.reverseZA=!uiVars.productsVar.reverseZA;">
+                    <span boxed-message="COLUMN_TEXT_PRICE"></span>
+                    <span ng-if="uiVars.productsVar.orderBy==uiVars.productsVar.PRICE">
+                        <span ng-if="!uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes sort-button" aria-hidden="true"></span>
+                        <span ng-if="uiVars.productsVar.reverseZA" class="glyphicon glyphicon-sort-by-attributes-alt sort-button" aria-hidden="true"></span>
+                    </span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="record in (uiVars.productsVar.filteredRecords = ((db.getField('dictionaryProducts') | filter:uiVars.productsVar.filterBy | orderBy:uiVars.productsVar.orderBy:uiVars.productsVar.reverseZA))).slice(((uiVars.productsVar.currentPageNumber-1)*uiVars.productsVar.itemsPerPage),((uiVars.productsVar.currentPageNumber)*uiVars.productsVar.itemsPerPage))">
+                <td>{{record.id}}</td>
+                <td>{{record.name}}</td>
+                <td>{{record.category}}</td>
+                <td>{{record.price}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!--Select and Pagination-->
+<div class="row">
+    <!--Select-->
+    <div class="col-sm-2 col-md-2">
+        <div class="input-group">
+            <select class="form-control" ng-model="uiVars.productsVar.itemsPerPage">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+            </select>
+        </div>
+    </div>
+    <!--Pagination-->
+    <div class="col-sm-10 col-md-10">
+        <div class="custome-pagination">
+            <ul uib-pagination class="pagination" first-text="Primero" previous-text="Anterior" next-text="Siguiente" last-text="Último" boundary-links="true" force-ellipses="true" total-items="uiVars.productsVar.filteredRecords.length" items-per-page="uiVars.productsVar.itemsPerPage" ng-model="uiVars.productsVar.currentPageNumber" max-size="uiVars.productsVar.limintNumberForPaginationSize"></ul>
+        </div>
+    </div>
+</div>

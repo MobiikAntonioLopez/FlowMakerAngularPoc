@@ -1,0 +1,9 @@
+﻿<div class="alert-message">
+    <div uib-alert
+         ng-repeat="record in db.getField('alertMessage')"
+         ng-class="'alert-' + (record.type || 'warning')"
+         close="closeAlertMessage($index)"
+         dismiss-on-timeout="4000">
+        {{record.message}}
+    </div>
+</div>
