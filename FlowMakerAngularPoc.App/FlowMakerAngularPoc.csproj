@@ -950,8 +950,9 @@
     <Content Include="Scripts\draw2d\src\command\CommandUngroup.js" />
     <Content Include="Scripts\draw2d\src\Configuration.js" />
     <Content Include="Scripts\draw2d\src\Connection.js" />
-    <Content Include="Scripts\draw2d\src\customShapes\Control.js" />
     <Content Include="Scripts\draw2d\src\customShapes\Condition.js" />
+    <Content Include="Scripts\draw2d\src\customShapes\Control.js" />
+    <Content Include="Scripts\draw2d\src\customShapes\ConditionOld.js" />
     <Content Include="Scripts\draw2d\src\customShapes\HtmlFigure.js" />
     <Content Include="Scripts\draw2d\src\customShapes\Info.js" />
     <Content Include="Scripts\draw2d\src\decoration\connection\ArrowDecorator.js" />

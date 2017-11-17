@@ -68,17 +68,18 @@
                         </div>
                     </div>
                 </div>
-
+                <!--
                 <div class="panel panel-default">
                     <div class="panel-heading">Add Button</div>
                     <div class="panel-body" id="position_panel">
                         <div class="form-group">
                             Label: <input class="form-control" ng-model="newChildText"><br>
                             <a href="#" ng-click="editor.selection.figure.addEntity(newChildText)">Add button</a>
-                            <!--Value: <textarea class="form-control" ng-model="editor.selection.userData.flowData.title" ng-change="setTitle()" style="width:350px; height:100px; resize:none"></textarea><br>-->
+                            Value: <textarea class="form-control" ng-model="editor.selection.userData.flowData.title" ng-change="setTitle()" style="width:350px; height:100px; resize:none"></textarea><br>
                         </div>
                     </div>
                 </div>
+                -->
 
                 <div class="panel panel-default">
                     <div class="panel-heading">Button</div>
@@ -89,77 +90,23 @@
                                 <th>Label</th>
                                 <th>Value</th>
                                 <th>Id</th>
+                                <th></th>
                             </tr>
-                            <tr ng-repeat="child in editor.selection.children.data track by $index">
+                            <tr>
+                                <td><input class="form-control" ng-model="newChild.label" ></td>
+                                <td><input class="form-control" ng-model="newChild.value"></td>
+                                <td><input class="form-control" ng-model="newChild.id"type="text"></td>
+                                <td  ng-click="editor.selection.figure.addEntity(newChild);newChild=null"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></td>
+                            </tr><tr ng-repeat="child in editor.selection.children.data | filter:{userData: { buttonData:'!'}} track by $index">
                                 <td><input class="form-control" ng-model="child.text" ng-change="child.setText(child.text)"></td>
-                                <td><input class="form-control" ng-model="child.text" ng-change="child.setText(child.text)"></td>
-                                <td><input class="form-control" ng-model="child.text" ng-change="child.setText(child.text)"></td>
+                                <td><input class="form-control" ng-model="child.userData.buttonData.value"></td>
+                                <td><input class="form-control" ng-model="child.userData.buttonData.id"></td>
+                                <td ng-click="editor.selection.figure.removeEntity($index)"><span ng-if="$index>0" class="glyphicon glyphicon-trash" aria-hidden="true"></span></td>
                             </tr>
                         </table>
-                        <!--
-                            <div class="form-group">
-                                Label: <input class="form-control" ng-model="newChildText"><br>
-                                <a href="#" ng-click="editor.selection.figure.addEntity(newChildText)">Add button</a>
-                                <!--Value: <textarea class="form-control" ng-model="editor.selection.userData.flowData.title" ng-change="setTitle()" style="width:350px; height:100px; resize:none"></textarea><br>
-                            </div>
-                        -->
                     </div>
                 </div>
             </div>
-            <!--
-
-                            <div class="panel panel-default" ng-repeat="child in editor.selection.children.data track by $index">
-                                <div class="panel-heading">Button</div>
-                                <div class="panel-body" id="position_panel">
-                                    <div class="form-group">
-                                        Label: <input class="form-control" ng-model="child.text" ng-change="child.setText(child.text)"><br>
-                                        <!--Value: <textarea class="form-control" ng-model="editor.selection.userData.flowData.title" ng-change="setTitle()" style="width:350px; height:100px; resize:none"></textarea><br>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                -->
-            <!--
-                            <div class="panel panel-default">
-                                <div class="panel-heading">Button 1</div>
-                                <div class="panel-body" id="position_panel">
-                                    <div class="form-group">
-                                        Label: <input class="form-control" type="number" ng-model="editor.selection.userData.controls[1].label"><br>
-                                        Id: <textarea class="form-control" ng-model="editor.selection.userData.controls[1].id" ng-change="setHtmlContent()" style="width:350px; height:100px; resize:none"></textarea>
-                                        Value: <textarea class="form-control" ng-model="editor.selection.userData.controls[1].value" ng-change="setHtmlContent()" style="width:350px; height:100px; resize:none"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="panel panel-default">
-                                <div class="panel-heading">Button 2</div>
-                                <div class="panel-body" id="position_panel">
-                                    <div class="form-group">
-                                        Flow name: <input class="form-control" type="number" ng-model="editor.selection.userData.flowName"><br>
-                                        Title: <textarea class="form-control" ng-model="editor.selection.userData.contentHtml" ng-change="setHtmlContent()" style="width:350px; height:100px; resize:none"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-
-                        <!--
-                        <div ng-switch-default>
-                            Default
-                            <div class="panel panel-default">
-                                <div class="panel-heading">Content</div>
-                                <div class="panel-body" id="position_panel">
-                                    <div class="form-group">
-                                        Html Content: <textarea class="form-control" ng-model="editor.selection.userData.contentHtml" ng-change="setHtmlContent()" style="width:350px; height:100px; resize:none" ></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        -->
-
-
         </div>
 
     </div>

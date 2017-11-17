@@ -249,10 +249,10 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 figures: [
                     //{ class: "draw2d.shape.node.Start", name: "Start" },
                     //{ class: "draw2d.shape.node.End", name: "End" },
-                    { class: "Info", name: "Info" },
+                    { class: "Info", name: "Info", cssClass: "palette_node_info" },
                     //{ class: "draw2d.shape.analog.OpAmp", name: "draw2d.shape.analog.OpAmp" }, 
-                    { class: "Condition", name: "Condition" },
-                    { class: "Control", name: "Control" }
+                    { class: "Condition", name: "Condition", cssClass: "palette_node_condition" },
+                    { class: "Control", name: "Control", cssClass: "palette_node_control" }
                 ]
             }
         };
@@ -262,10 +262,13 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
         };
 
         $scope.setTitle = function () {
-            console.log("DEBIG");
             $scope.editor.selection.figure.setTitle();
         };
 
+        //$scope.buttonSetValue = function () {
+
+
+        //}
         //$scope.debug = function () {
 
         //    console.log("debug");
@@ -384,7 +387,10 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                         figure: null,
                         attr: null,
                         userData: null,
-                        children: null
+                        children: {
+
+                            data: null
+                        }
                     }
 
                 }, scope.editor);
@@ -408,10 +414,16 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 // Update the selection in the model
                 // and Databinding Draw2D -> Angular
                 var changeCallback = function (emitter, attribute) {
+                    if(emitter!=null)
+                    var children =  emitter.getChildren().data;
                     $timeout(function () {
-                        if (scope.editor.selection.attr !== null) {
-                            scope.editor.selection.attr[attribute] = emitter.attr(attribute);
+                        //if (scope.editor.selection.attr !== null) {
+                            //scope.editor.selection.attr[attribute] = emitter.attr(attribute);
+                        //}
+                        if (scope.editor.selection.children.data !== null && children.length != scope.editor.selection.children.data.length) {
+                            scope.editor.selection.children.data = emitter.getChildren().data;
                         }
+
                     }, 0);
                 };
                 canvas.on("select", function (canvas, event) {
@@ -425,8 +437,8 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                         if (figure !== null) {
                             var innerForeignObject = document.getElementById("info-" + figure.id);
                             scope.editor.selection.className = figure.NAME;
-                            scope.editor.selection.attr = figure.attr();
-                            scope.editor.selection.children = figure.getChildren();
+                            //scope.editor.selection.attr = figure.attr();
+                            scope.editor.selection.children.data = figure.getChildren().data;
                             if (innerForeignObject) {
 
                                 figure.userData.flowData.html =  innerForeignObject.innerHTML ;
@@ -436,8 +448,8 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                         }
                         else {
                             scope.editor.selection.className = null;
-                            scope.editor.selection.attr = null;
-                            scope.editor.selection.children = null;
+                            //scope.editor.selection.attr = null;
+                            scope.editor.selection.children.data =  null;
                         }
 
                         // unregister and register the attr listener to the new figure
@@ -452,15 +464,15 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 // it is neccessary to call the related setter of the draw2d object. "Normal" Angular 
                 // Databinding didn't work for draw2d yet
                 //
-                scope.$watchCollection("editor.selection.attr", function (newValues, oldValues) {
+                //scope.$watchCollection("editor.selection.attr", function (newValues, oldValues) {
 
-                    if (oldValues !== null && scope.editor.selection.figure != null) {
-                        // for performance reason we post only changed attributes to the draw2d figure
-                        //
-                        var changes = draw2d.util.JSON.diff(newValues, oldValues);
-                        scope.editor.selection.figure.attr(changes);
-                    }
-                });
+                //    if (oldValues !== null && scope.editor.selection.figure != null) {
+                //        // for performance reason we post only changed attributes to the draw2d figure
+                //        //
+                //        var changes = draw2d.util.JSON.diff(newValues, oldValues);
+                //        scope.editor.selection.figure.attr(changes);
+                //    }
+                //});
 
                 scope.$watchCollection("editor.selection.userData", function (newValues, oldValues) {
 
@@ -472,15 +484,15 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                     }
                 });
 
-                scope.$watchCollection("editor.selection.children", function (newValues, oldValues) {
+                //scope.$watchCollection("editor.selection.children.data", function (newValues, oldValues) {
 
-                    if (oldValues !== null && scope.editor.selection.figure != null) {
-                        // for performance reason we post only changed attributes to the draw2d figure
-                        //
-                        var changes = draw2d.util.JSON.diff(newValues, oldValues);
-                        $.extend(scope.editor.selection.figure.children, changes);
-                    }
-                });
+                //    if (oldValues !== null && scope.editor.selection.figure != null && newValues.length !== scope.editor.selection.figure.children.length) {
+                //        // for performance reason we post only changed attributes to the draw2d figure
+                //        //
+                //        var changes = draw2d.util.JSON.diff(newValues, oldValues);
+                //        $.extend(scope.editor.selection.figure.children.data, changes);
+                //    }
+                //});
 
                 // push the canvas function to the scope for ng-action access
                 //
@@ -523,7 +535,7 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                     });
                 }, 0);
             },
-            template: "<div ng-repeat='figure in editor.palette.figures' data-shape='{{figure.class}}'  class='palette_node_element draw2d_droppable'>{{figure.name}}</div>"
+            template: "<div ng-repeat='figure in editor.palette.figures' data-shape='{{figure.class}}'  class='palette_node_element draw2d_droppable {{figure.cssClass}}'>{{figure.name}}</div>"
         };
     }]);
 

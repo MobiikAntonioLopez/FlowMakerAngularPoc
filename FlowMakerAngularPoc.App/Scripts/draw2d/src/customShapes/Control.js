@@ -24,7 +24,7 @@
 
 
         this.add(this.classLabel);
-        this.addEntity('id');
+        this.addEntity({label:'optionLabel',value:'optionValue',id:'optionId'});
         this.setHeight(200);
         this.addPort(inputPort, new draw2d.layout.locator.XYRelPortLocator(0,50));
         this.userData = {
@@ -49,9 +49,10 @@
      * @param {String} txt the label to show
      * @param {Number} [optionalIndex] index where to insert the entity
      */
-    addEntity: function (txt, optionalIndex) {
+    addEntity: function (button, optionalIndex) {
+        if(button!=null&&label!==''){
         var label = new draw2d.shape.basic.Label({
-            text: txt,
+            text: button.label,
             stroke: 1,
             radius: 0,
             bgColor: null,
@@ -108,6 +109,17 @@
         //    });
         //});
 
+        label.userData =
+            {
+                buttonData: {
+
+                    label: button.label,
+                    id: button.id,
+                    flowTo: '',
+                    value: button.value
+                }
+        }
+
 
         if ($.isNumeric(optionalIndex)) {
             this.add(label, null, optionalIndex + 1);
@@ -118,7 +130,7 @@
 
         this.setHeight(100);
 
-        return label;
+        return label;}
     },
 
     /**
@@ -130,7 +142,11 @@
      * @param {Number} index the index of the entity to remove
      */
     removeEntity: function (index) {
-        this.remove(this.children.get(index + 1).figure);
+        //this.remove(this.children.get(index + 1).figure);
+
+        //this.remove(this.children.get(index + 1).figure);
+        var removeCommand = new draw2d.command.CommandDelete(this.children.get(index + 1).figure);
+        this.getCanvas().getCommandStack().execute(removeCommand);
     },
 
     /**
