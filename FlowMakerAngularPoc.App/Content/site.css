@@ -267,3 +267,29 @@
     width: 90px;
 }
 /*#endregion*/
+
+
+#table-control-buttons{
+
+    width:100%;
+}
+
+#table-control-buttons td{
+
+    border:1px solid gray;
+}
+
+
+#table-control-buttons td, #table-control-buttons th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+
+#table-control-buttons th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #ffecc4;
+    color: #000;
+}

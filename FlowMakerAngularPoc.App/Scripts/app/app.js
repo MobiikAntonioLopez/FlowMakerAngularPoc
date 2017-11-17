@@ -6,6 +6,7 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
 (function () {
     'use strict';
 
+    var d2 = angular.module('draw2d', []);
 
     var app = angular.module('angularBox', ['ngRoute', 'ngCookies', 'ngSanitize', 'databaseModule', 'directivesModule', 'ngAnimate', 'ui.bootstrap', 'draw2d']),
         formCtrl,
@@ -202,7 +203,7 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
 
         }]);
 
-    app.controller('EditorController', ['$scope', '$modal', function ($scope, $modal) {
+    app.controller('EditorController', ['$scope', '$uibModal', function ($scope, $uibModal) {
 
         $scope.editor = {
             // ng-click Callbacks
@@ -235,7 +236,7 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 //
                 onDrop: function (droppedDomNode, x, y, shiftKey, ctrlKey) {
                     var type = $(droppedDomNode).data("shape");
-                    var figure = eval("new " + type + "();");
+                    var figure = eval("new " + type + "();");                    
                     // create a command for the undo/redo support
                     var command = new draw2d.command.CommandAdd(this, figure, x, y);
                     this.getCommandStack().execute(command);
@@ -246,11 +247,31 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
             // Used by the directrives/canvas.js
             palette: {
                 figures: [
-                    { class: "draw2d.shape.node.Start", name: "Start" },
-                    { class: "draw2d.shape.node.End", name: "End" }
+                    //{ class: "draw2d.shape.node.Start", name: "Start" },
+                    //{ class: "draw2d.shape.node.End", name: "End" },
+                    { class: "Info", name: "Info" },
+                    //{ class: "draw2d.shape.analog.OpAmp", name: "draw2d.shape.analog.OpAmp" }, 
+                    { class: "Condition", name: "Condition" },
+                    { class: "Control", name: "Control" }
                 ]
             }
         };
+
+        $scope.setHtmlContent = function () {
+            $scope.editor.selection.figure.setHtmlContent();
+        };
+
+        $scope.setTitle = function () {
+            console.log("DEBIG");
+            $scope.editor.selection.figure.setTitle();
+        };
+
+        //$scope.debug = function () {
+
+        //    console.log("debug");
+        //    console.log($scope.editor.selection.children);
+        //}
+
     }
     ]);
 
@@ -335,4 +356,177 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
             }
         };
     });
+
+    d2.directive("draw2dCanvas", ["$window", "$parse", "$timeout", function ($window, $parse, $timeout) {
+
+        return {
+            restrict: 'E,A',
+            link: function (scope, element, attrs, controller) {
+
+                // provide the scope properties and override the defaults with the user settings
+                //
+                scope.editor = $.extend(true, {
+                    canvas: {
+                        width: 2000,
+                        height: 2000,
+                        onDrop: function (droppedDomNode, x, y, shiftKey, ctrlKey) { }
+                    },
+                    palette: {
+                        figures: []
+                    },
+                    state: {
+                        dirty: false,
+                        canUndo: false,
+                        canRedo: false
+                    },
+                    selection: {
+                        className: null,
+                        figure: null,
+                        attr: null,
+                        userData: null,
+                        children: null
+                    }
+
+                }, scope.editor);
+
+                // init the Draw2D Canvas with the given user settings and overriden hooks
+                //
+                var canvas = new draw2d.Canvas(element.attr("id"), scope.editor.canvas.width, scope.editor.canvas.height);
+                canvas.setScrollArea("#" + element.attr("id"));
+                canvas.onDrop = $.proxy(scope.editor.canvas.onDrop, canvas);
+
+                // update the scope model with the current state of the
+                // CommandStack
+                var stack = canvas.getCommandStack();
+                stack.addEventListener(function (event) {
+                    $timeout(function () {
+                        scope.editor.state.canUndo = stack.canUndo();
+                        scope.editor.state.canRedo = stack.canRedo();
+                    }, 0);
+                });
+
+                // Update the selection in the model
+                // and Databinding Draw2D -> Angular
+                var changeCallback = function (emitter, attribute) {
+                    $timeout(function () {
+                        if (scope.editor.selection.attr !== null) {
+                            scope.editor.selection.attr[attribute] = emitter.attr(attribute);
+                        }
+                    }, 0);
+                };
+                canvas.on("select", function (canvas, event) {
+
+                    var figure = event.figure;
+                    if (figure instanceof draw2d.Connection) {
+                        return; // silently
+                    }
+
+                    $timeout(function () {
+                        if (figure !== null) {
+                            var innerForeignObject = document.getElementById("info-" + figure.id);
+                            scope.editor.selection.className = figure.NAME;
+                            scope.editor.selection.attr = figure.attr();
+                            scope.editor.selection.children = figure.getChildren();
+                            if (innerForeignObject) {
+
+                                figure.userData.flowData.html =  innerForeignObject.innerHTML ;
+                                scope.editor.selection.userData = figure.getUserData();
+                            }
+                            scope.editor.selection.userData = figure.getUserData();
+                        }
+                        else {
+                            scope.editor.selection.className = null;
+                            scope.editor.selection.attr = null;
+                            scope.editor.selection.children = null;
+                        }
+
+                        // unregister and register the attr listener to the new figure
+                        //
+                        if (scope.editor.selection.figure !== null) { scope.editor.selection.figure.off("change", changeCallback); }
+                        scope.editor.selection.figure = figure;
+                        if (scope.editor.selection.figure !== null) { scope.editor.selection.figure.on("change", changeCallback); }
+                    }, 0);
+                });
+
+                // Databinding: Angular UI -> Draw2D
+                // it is neccessary to call the related setter of the draw2d object. "Normal" Angular 
+                // Databinding didn't work for draw2d yet
+                //
+                scope.$watchCollection("editor.selection.attr", function (newValues, oldValues) {
+
+                    if (oldValues !== null && scope.editor.selection.figure != null) {
+                        // for performance reason we post only changed attributes to the draw2d figure
+                        //
+                        var changes = draw2d.util.JSON.diff(newValues, oldValues);
+                        scope.editor.selection.figure.attr(changes);
+                    }
+                });
+
+                scope.$watchCollection("editor.selection.userData", function (newValues, oldValues) {
+
+                    if (oldValues !== null && scope.editor.selection.figure != null) {
+                        // for performance reason we post only changed attributes to the draw2d figure
+                        //
+                        var changes = draw2d.util.JSON.diff(newValues, oldValues);
+                        $.extend(scope.editor.selection.figure.userData,changes);
+                    }
+                });
+
+                scope.$watchCollection("editor.selection.children", function (newValues, oldValues) {
+
+                    if (oldValues !== null && scope.editor.selection.figure != null) {
+                        // for performance reason we post only changed attributes to the draw2d figure
+                        //
+                        var changes = draw2d.util.JSON.diff(newValues, oldValues);
+                        $.extend(scope.editor.selection.figure.children, changes);
+                    }
+                });
+
+                // push the canvas function to the scope for ng-action access
+                //
+                scope.editor.undo = $.proxy(stack.undo, stack);
+                scope.editor.redo = $.proxy(stack.redo, stack);
+                scope.editor["delete"] = $.proxy(function () {
+                    var node = this.getCurrentSelection();
+                    var command = new draw2d.command.CommandDelete(node);
+                    this.getCommandStack().execute(command);
+                }, canvas);
+                scope.editor.load = $.proxy(function (json) {
+                    canvas.clear();
+                    var reader = new draw2d.io.json.Reader();
+                    reader.unmarshal(canvas, json);
+                }, canvas);
+            }
+        };
+    }]);
+
+    d2.directive("draw2dPalette", ["$window", "$parse", '$timeout', function ($window, $parse, $timeout) {
+        return {
+            restrict: 'E,A',
+            link: function (scope, element, attrs, controller) {
+
+                // $timeout is used just to ensure that the template is rendered if we want access them
+                // (leave the render cycle)
+                $timeout(function () {
+                    $(".draw2d_droppable").draggable({
+                        appendTo: "body",
+                        stack: "body",
+                        zIndex: 27000,
+                        helper: "clone",
+                        drag: function (event, ui) {
+                        },
+                        stop: function (e, ui) {
+                        },
+                        start: function (e, ui) {
+                            $(ui.helper).addClass("shadow");
+                        }
+                    });
+                }, 0);
+            },
+            template: "<div ng-repeat='figure in editor.palette.figures' data-shape='{{figure.class}}'  class='palette_node_element draw2d_droppable'>{{figure.name}}</div>"
+        };
+    }]);
+
+
+
 })();

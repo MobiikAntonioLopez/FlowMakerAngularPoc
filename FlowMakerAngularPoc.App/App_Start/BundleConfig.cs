@@ -32,12 +32,30 @@ namespace FlowMakerAngularPoc.App
                 .Include("~/Scripts/app/simul-actions.js")
                 );
 
+            bundles.Add(new ScriptBundle("~/bundles/draw2d/lib")
+                .Include("~/Scripts/draw2d/lib/shifty.js")
+                .Include("~/Scripts/draw2d/lib/raphael.js")
+                .Include("~/Scripts/draw2d/lib/jquery-1.12.0.min.js")
+                .Include("~/Scripts/draw2d/lib/jquery.autoresize.js")
+                .Include("~/Scripts/draw2d/lib/jquery.contextmenu.js")
+                .Include("~/Scripts/draw2d/lib/rgbcolor.js")
+                .Include("~/Scripts/draw2d/lib/canvg.js")
+                .Include("~/Scripts/draw2d/lib/Class.js")
+                .Include("~/Scripts/draw2d/lib/json2.js")
+                .Include("~/Scripts/draw2d/lib/pathfinding-browser.min.js"));
+
+
+
+
             #endregion
 
             #region CSS
             bundles.Add(new StyleBundle("~/Content/css")
                 .Include("~/Content/ui-bootstrap-csp.css")
-                .Include("~/Content/site.css"));
+                .Include("~/Content/site.css")
+                .Include("~/Content/styles.less")
+                .Include("~/Content/contextmenu.css")
+                );
 
             #endregion
         }
