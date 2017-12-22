@@ -63,7 +63,7 @@ Info = draw2d.shape.basic.Rectangle.extend({
         this.userData = {
             flowData: {
                 flow: '',
-                type: '',
+                type: 'INFO',
                 flowTo: '',
                 html:'',
             }

@@ -236,7 +236,7 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 //
                 onDrop: function (droppedDomNode, x, y, shiftKey, ctrlKey) {
                     var type = $(droppedDomNode).data("shape");
-                    var figure = eval("new " + type + "();");                    
+                    var figure = eval("new " + type + "();");
                     // create a command for the undo/redo support
                     var command = new draw2d.command.CommandAdd(this, figure, x, y);
                     this.getCommandStack().execute(command);
@@ -252,7 +252,8 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                     { class: "Info", name: "Info", cssClass: "palette_node_info" },
                     //{ class: "draw2d.shape.analog.OpAmp", name: "draw2d.shape.analog.OpAmp" }, 
                     { class: "Condition", name: "Condition", cssClass: "palette_node_condition" },
-                    { class: "Control", name: "Control", cssClass: "palette_node_control" }
+                    { class: "Control", name: "Control", cssClass: "palette_node_control" },
+
                 ]
             }
         };
@@ -265,6 +266,16 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
             $scope.editor.selection.figure.setTitle();
         };
 
+        $scope.setCondition = function () {
+            $scope.editor.selection.figure.setCondition();
+        };
+
+
+
+        //$scope.createJSON = function () {
+
+        //    console.log($scope.editor.canvas);
+        //}
         //$scope.buttonSetValue = function () {
 
 
@@ -401,6 +412,26 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 canvas.setScrollArea("#" + element.attr("id"));
                 canvas.onDrop = $.proxy(scope.editor.canvas.onDrop, canvas);
 
+                var createConnection = function () {
+                    var con = new draw2d.Connection();
+                    con.setRouter(new draw2d.layout.connection.MazeConnectionRouter());
+                    return con;
+                };
+
+                // install a custom connection create policy
+                //
+                canvas.installEditPolicy(new draw2d.policy.connection.DragConnectionCreatePolicy({
+                    createConnection: createConnection
+                }));
+
+
+                //canvas.add(
+
+                //var start = new ;                    
+                //// create a command for the undo/redo support
+                //var command = new draw2d.command.CommandAdd(this, figure, x, y);
+                //this.getCommandStack().execute(command);
+
                 // update the scope model with the current state of the
                 // CommandStack
                 var stack = canvas.getCommandStack();
@@ -414,13 +445,15 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 // Update the selection in the model
                 // and Databinding Draw2D -> Angular
                 var changeCallback = function (emitter, attribute) {
-                    if(emitter!=null)
-                    var children =  emitter.getChildren().data;
+                    if (emitter != null)
+                        var children = emitter.getChildren().data;
                     $timeout(function () {
                         //if (scope.editor.selection.attr !== null) {
-                            //scope.editor.selection.attr[attribute] = emitter.attr(attribute);
+                        //scope.editor.selection.attr[attribute] = emitter.attr(attribute);
                         //}
                         if (scope.editor.selection.children.data !== null && children.length != scope.editor.selection.children.data.length) {
+
+                            //console.log(editor.selection.className);
                             scope.editor.selection.children.data = emitter.getChildren().data;
                         }
 
@@ -428,7 +461,12 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 };
                 canvas.on("select", function (canvas, event) {
 
+
                     var figure = event.figure;
+
+                    scope.showProperties = true;
+                    scope.showGeneratedJson = false;
+
                     if (figure instanceof draw2d.Connection) {
                         return; // silently
                     }
@@ -437,19 +475,19 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                         if (figure !== null) {
                             var innerForeignObject = document.getElementById("info-" + figure.id);
                             scope.editor.selection.className = figure.NAME;
-                            //scope.editor.selection.attr = figure.attr();
+                            scope.editor.selection.attr = figure.attr();
                             scope.editor.selection.children.data = figure.getChildren().data;
                             if (innerForeignObject) {
 
-                                figure.userData.flowData.html =  innerForeignObject.innerHTML ;
+                                figure.userData.flowData.html = innerForeignObject.innerHTML;
                                 scope.editor.selection.userData = figure.getUserData();
                             }
                             scope.editor.selection.userData = figure.getUserData();
                         }
                         else {
                             scope.editor.selection.className = null;
-                            //scope.editor.selection.attr = null;
-                            scope.editor.selection.children.data =  null;
+                            scope.editor.selection.attr = null;
+                            scope.editor.selection.children.data = null;
                         }
 
                         // unregister and register the attr listener to the new figure
@@ -464,23 +502,29 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
                 // it is neccessary to call the related setter of the draw2d object. "Normal" Angular 
                 // Databinding didn't work for draw2d yet
                 //
-                //scope.$watchCollection("editor.selection.attr", function (newValues, oldValues) {
+                scope.$watchCollection("editor.selection.attr", function (newValues, oldValues) {
 
-                //    if (oldValues !== null && scope.editor.selection.figure != null) {
-                //        // for performance reason we post only changed attributes to the draw2d figure
-                //        //
-                //        var changes = draw2d.util.JSON.diff(newValues, oldValues);
-                //        scope.editor.selection.figure.attr(changes);
-                //    }
-                //});
+                    if (oldValues !== null && scope.editor.selection.figure != null) {
+                        // for performance reason we post only changed attributes to the draw2d figure
+                        //
+                        //var changes = draw2d.util.JSON.diff(newValues, oldValues);
+                        //scope.editor.selection.figure.attr(changes);
+                        console.log(scope.editor.selection.figure.className);
+
+                    }
+                });
 
                 scope.$watchCollection("editor.selection.userData", function (newValues, oldValues) {
 
                     if (oldValues !== null && scope.editor.selection.figure != null) {
                         // for performance reason we post only changed attributes to the draw2d figure
                         //
+
+
+
+
                         var changes = draw2d.util.JSON.diff(newValues, oldValues);
-                        $.extend(scope.editor.selection.figure.userData,changes);
+                        $.extend(scope.editor.selection.figure.userData, changes);
                     }
                 });
 
@@ -496,13 +540,134 @@ var APP_MSG, APP_CONST, databaseData, wsConnect, devActions, addUser, projectUpl
 
                 // push the canvas function to the scope for ng-action access
                 //
+
+                scope.editor.createJSON = function () {
+
+                    var figures = canvas.getFigures();
+
+                    var FLOW_PREFIX = "FLOW_10"
+
+                    var pages = [];
+
+                    if (figures) {
+
+                        for (var i = 0; i < figures.getSize() ; i++) {
+
+                            var figureToName = figures.get(i);
+
+                            if (i === 0) {
+                                figureToName.userData.flowData.flow = "ROOT";
+                            }
+                            else {
+                                figureToName.userData.flowData.flow = FLOW_PREFIX + i;
+                            }
+
+
+                            switch (figureToName.cssClass) {
+                                case 'Condition':
+                                    figureToName.getUserData().flowData.results = [];
+                                    break;
+                                case 'Control':
+                                    figureToName.getUserData().flowData.controls[0].ctrlGroup = [];
+                                    break
+                            }
+                        }
+
+
+
+                        for (var i = 0; i < figures.getSize() ; i++) {
+
+                            var figure = figures.data[i];
+
+                            switch (figure.cssClass) {
+                                case 'Condition':
+                                    var conditionResults = figure.getChildren();
+                                    for (var j = 0; j < conditionResults.getSize() ; j++) {
+                                        try {
+                                            var conditionResult = conditionResults.get(j);
+                                            var conditionConnections = conditionResult.getOutputPort(0).getConnections();
+                                            if (conditionConnections.getSize() >= 0) {
+                                                var conditionTarget = conditionConnections.get(0).getTarget();
+                                                if (conditionTarget) {
+                                                    var conditionTargetData = conditionTarget.getParent().getUserData();
+                                                    if (conditionTargetData) {
+                                                        if (j == 0) {
+                                                            figure.getUserData().flowData.flowTo = conditionTargetData.flowData.flow;
+                                                        }
+                                                        else {
+                                                            conditionResult.getUserData().resultData.flowTo = conditionTargetData.flowData.flow;
+                                                            figure.getUserData().flowData.results.push(conditionResult.getUserData().resultData);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (exception) {
+                                            console.log(exception);
+                                        }
+                                    }
+                                    break;
+                                case 'Info':
+                                    var outPort = figure.getOutputPort(0);
+                                    var connections = outPort.getConnections();
+                                    if (connections.getSize() > 0) {
+                                        var target = connections.get(0).getTarget();
+                                        var targetData = target.getParent().getUserData();
+                                        if (targetData) {
+                                            figure.userData.flowData.flowTo = targetData.flowData.flow;
+                                        }
+                                    }
+                                    break;
+                                case 'Control':
+                                    var controls = figure.getChildren();
+                                    for (var k = 1; k < controls.getSize() ; k++) {
+                                        try {
+                                            var control = controls.get(k);
+                                            var controlConnections = control.getOutputPort(0).getConnections();
+                                            if (controlConnections.getSize() > 0) {
+                                                var controlTarget = controlConnections.get(0).getTarget();
+                                                if (controlTarget) {
+                                                    var controlTargetData = controlTarget.getParent().getUserData();
+                                                    if (controlTargetData) {
+                                                        control.getUserData().buttonData.flowTo = controlTargetData.flowData.flow;
+                                                        figure.getUserData().flowData.controls[0].ctrlGroup.push(control.getUserData().buttonData);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (exception) {
+                                            console.log(exception);
+                                        }
+                                    }
+                                    break;
+                            }
+                            //console.log(figure.userData);
+
+                            pages.push(figure.userData.flowData);
+
+
+                        }
+                    }
+
+
+                    scope.showProperties = false;
+                    scope.showGeneratedJson = true;
+                    scope.editor.generatedJson = JSON.stringify(pages);
+                    console.log(JSON.stringify(pages));
+
+                }
+
+                scope.editor.delete = function () {
+                    var command = new draw2d.command.CommandDelete(canvas.getSelection().primary);
+                    canvas.getCommandStack().execute(command);
+                }
                 scope.editor.undo = $.proxy(stack.undo, stack);
                 scope.editor.redo = $.proxy(stack.redo, stack);
-                scope.editor["delete"] = $.proxy(function () {
-                    var node = this.getCurrentSelection();
-                    var command = new draw2d.command.CommandDelete(node);
-                    this.getCommandStack().execute(command);
-                }, canvas);
+                //scope.editor["delete"] = $.proxy(function () {
+                //    var node = canvas.getCurrentSelection();
+                //    var command = new draw2d.command.CommandDelete(node);
+                //    canvas.getCommandStack().execute(command);
+                //}, canvas);
                 scope.editor.load = $.proxy(function (json) {
                     canvas.clear();
                     var reader = new draw2d.io.json.Reader();

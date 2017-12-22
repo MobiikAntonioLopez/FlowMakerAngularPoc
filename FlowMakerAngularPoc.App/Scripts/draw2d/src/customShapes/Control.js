@@ -31,12 +31,13 @@
             flowData: {
                 flow: '',
                 type: 'CTRLS',
-                flowTo: '',
                 title: '',
-                controls: {
+                controls: [
+                    {
                     ctrlType: 'CTRL_BUTTON',
                     ctrlGroup: []
-                }
+                    }
+                ]
             }
         };
     },
@@ -161,7 +162,6 @@
 
 
     setTitle: function () {
-        console.log(this);
         this.classLabel.setText(this.userData.flowData.title);
     }
 

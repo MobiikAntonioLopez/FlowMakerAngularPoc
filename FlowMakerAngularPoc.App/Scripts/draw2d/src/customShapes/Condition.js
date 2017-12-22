@@ -24,19 +24,19 @@
 
 
         this.add(this.classLabel);
-        this.addEntity({ label: 'defaultOption', value: 'optionValue', id: 'optionId' });
+        //this.addEntity({ value: 'defaultResultValue' });
+        //this.addEntity({ value: 'FALSE' });
         this.setHeight(200);
         this.addPort(inputPort, new draw2d.layout.locator.XYRelPortLocator(0, 50));
+        this.classLabel.addPort(outputPort, new draw2d.layout.locator.RightLocator());
+
         this.userData = {
             flowData: {
                 flow: '',
-                type: 'CTRLS',
+                type: 'JS_FLOW',
+                condition : '',
                 flowTo: '',
-                title: '',
-                controls: {
-                    ctrlType: 'CTRL_BUTTON',
-                    ctrlGroup: []
-                }
+                results: []
             }
         };
     },
@@ -49,10 +49,10 @@
      * @param {String} txt the label to show
      * @param {Number} [optionalIndex] index where to insert the entity
      */
-    addEntity: function (button, optionalIndex) {
-        if (button != null && label !== '') {
+    addEntity: function (result, optionalIndex) {
+        if (result != null) {
             var label = new draw2d.shape.basic.Label({
-                text: button.label,
+                text: result.value,
                 stroke: 1,
                 radius: 0,
                 bgColor: null,
@@ -67,57 +67,13 @@
             var _table = this;
 
             label.addPort(outputPort, new draw2d.layout.locator.RightLocator());
-            //output.setName("output_" + label.id);
-
-            //label.on("contextmenu", function (emitter, event) {
-            //    $.contextMenu({
-            //        selector: 'body',
-            //        events:
-            //        {
-            //            hide: function () { $.contextMenu('destroy'); }
-            //        },
-            //        callback: $.proxy(function (key, options) {
-            //            switch (key) {
-            //                case "rename":
-            //                    setTimeout(function () {
-            //                        emitter.onDoubleClick();
-            //                    }, 10);
-            //                    break;
-            //                case "new":
-            //                    setTimeout(function () {
-            //                        _table.addEntity("_new_").onDoubleClick();
-            //                    }, 10);
-            //                    break;
-            //                case "delete":
-            //                    // with undo/redo support
-            //                    var cmd = new draw2d.command.CommandDelete(emitter);
-            //                    emitter.getCanvas().getCommandStack().execute(cmd);
-            //                default:
-            //                    break;
-            //            }
-
-            //        }, this),
-            //        x: event.x,
-            //        y: event.y,
-            //        items:
-            //        {
-            //            "rename": { name: "Rename" },
-            //            "new": { name: "New Entity" },
-            //            "sep1": "---------",
-            //            "delete": { name: "Delete" }
-            //        }
-            //    });
-            //});
 
             label.userData =
                 {
-                    buttonData: {
-
-                        label: button.label,
-                        id: button.id,
+                    resultData : {
+                        value : result.value,
                         flowTo: '',
-                        value: button.value
-                    }
+                    }                    
                 }
 
 
@@ -161,9 +117,8 @@
     },
 
 
-    setTitle: function () {
-        console.log(this);
-        this.classLabel.setText(this.userData.flowData.title);
+    setCondition: function () {
+        this.classLabel.setText(this.userData.flowData.condition);
     }
 
 

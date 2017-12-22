@@ -3,56 +3,34 @@
     <span ng-init="$root.exchange={uiVars:uiVars}"></span>
     @*<lock-screen></lock-screen>
         <alert-message></alert-message>*@
+    <span ng-init="showProperties=true"></span>
 
     <div id="logo">Draw2D</div>
     <div id="toolbar" class="navbar-default">
-        <button class="btn btn-lg btn-primary" ng-click="editor.fileOpen()"> Open   </button>
+        <!--<button class="btn btn-lg btn-primary" ng-click="editor.fileOpen()"> Open   </button>-->
+        <button class="btn btn-lg btn-primary" ng-click="editor.createJSON()"> Create JSON </button>
         <div class="btn-group">
             <button class="btn btn-lg btn-default" ng-disabled="!editor.state.canUndo" ng-click="editor.undo()"> Undo   </button>
             <button class="btn btn-lg btn-default" ng-disabled="!editor.state.canRedo" ng-click="editor.redo()"> Redo   </button>
             <button class="btn btn-lg btn-default" ng-disabled="editor.selection.figure==null" ng-click="editor.delete()"> Delete </button>
+            <!--<button class="btn btn-lg btn-default" ng-click="showProperties = !showProperties"> Toggle properties bar </button>-->
+            
         </div>
     </div>
 
-    <div id="propertyPane">
+    
+    <div id="propertyPane" ng-show="showProperties">
         <div id="propertyHeader" class="highlight panetitle blackgradient">
             Shape Properties
             {{editor.selection.className}}
         </div>
         <div id="properties" ng-switch on="editor.selection.className">
 
-            <div ng-switch-when="draw2d.shape.node.Start">
-                Start
-                <div class="panel panel-default">
-                    <div class="panel-heading">Position</div>
-                    <div class="panel-body" id="position_panel">
-                        <div class="form-group">
-                            x: <input class="form-control" type="number" ng-model="editor.selection.attr.x"><br>
-                            y: <input class="form-control" type="number" ng-model="editor.selection.attr.y">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div ng-switch-when="draw2d.shape.node.End">
-                End
-                <div class="panel panel-default">
-                    <div class="panel-heading">Position</div>
-                    <div class="panel-body" id="position_panel">
-                        <div class="form-group">
-                            x: <input class="form-control" type="number" ng-model="editor.selection.attr.x"><br>
-                            y: <input class="form-control" type="number" ng-model="editor.selection.attr.y">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div ng-switch-when="Info">
                 <div class="panel panel-default">
                     <div class="panel-heading">Info</div>
                     <div class="panel-body" id="position_panel">
                         <div class="form-group">
-                            <!--Flow name: <input class="form-control" type="text" ng-model="editor.selection.userData.flowData.flow"><br>-->
                             Html:<br><textarea class="form-control" ng-model="editor.selection.userData.flowData.html" ng-change="setHtmlContent()" style="width:350px; height:100px; resize:none"></textarea>
                         </div>
                     </div>
@@ -68,18 +46,6 @@
                         </div>
                     </div>
                 </div>
-                <!--
-                <div class="panel panel-default">
-                    <div class="panel-heading">Add Button</div>
-                    <div class="panel-body" id="position_panel">
-                        <div class="form-group">
-                            Label: <input class="form-control" ng-model="newChildText"><br>
-                            <a href="#" ng-click="editor.selection.figure.addEntity(newChildText)">Add button</a>
-                            Value: <textarea class="form-control" ng-model="editor.selection.userData.flowData.title" ng-change="setTitle()" style="width:350px; height:100px; resize:none"></textarea><br>
-                        </div>
-                    </div>
-                </div>
-                -->
 
                 <div class="panel panel-default">
                     <div class="panel-heading">Button</div>
@@ -107,9 +73,52 @@
                     </div>
                 </div>
             </div>
+
+            <div ng-switch-when="Condition">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Condition</div>
+                    <div class="panel-body" id="position_panel">
+                        <div class="form-group">
+                            Title:<br> <textarea class="form-control" ng-model="editor.selection.userData.flowData.condition" ng-change="setCondition()" style="width:350px; height:100px; resize:none"></textarea><br>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default">
+                    <div class="panel-heading">Results</div>
+                    <div class="panel-body" id="position_panel">
+
+                        <table id="table-control-buttons">
+                            <tr>
+                                <th>Value</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <td><input class="form-control" ng-model="newChild.value"></td>
+                                <td ng-click="editor.selection.figure.addEntity(newChild);newChild=null"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></td>
+                            </tr>
+                            <tr ng-repeat="child in editor.selection.children.data | filter:{userData: { resultData:'!'}} track by $index">
+                                <td><input class="form-control" ng-model="child.text" ng-change="child.setText(child.text)"></td>
+                                <td ng-click="editor.selection.figure.removeEntity($index)"><span ng-if="$index>0" class="glyphicon glyphicon-trash" aria-hidden="true"></span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
     </div>
+
+    <div id="jsonPane" ng-show="showGeneratedJson">
+
+
+            {{editor.generatedJson}}
+
+
+    </div>
+
 
     <div id="palettePane" draw2d-palette>
     </div>

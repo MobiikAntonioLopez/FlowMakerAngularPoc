@@ -34,15 +34,21 @@ namespace FlowMakerAngularPoc.App
 
             bundles.Add(new ScriptBundle("~/bundles/draw2d/lib")
                 .Include("~/Scripts/draw2d/lib/shifty.js")
-                .Include("~/Scripts/draw2d/lib/raphael.js")
+                .Include("~/Scripts/draw2d/lib/patched_raphael.js")
                 .Include("~/Scripts/draw2d/lib/jquery-1.12.0.min.js")
+
+                .Include("~/Scripts/draw2d/lib/jquery-ui.js")
+                .Include("~/Scripts/draw2d/lib/jquery.browser.js")
+
                 .Include("~/Scripts/draw2d/lib/jquery.autoresize.js")
+                .Include("~/Scripts/draw2d/lib/jquery-touch_punch.js")
                 .Include("~/Scripts/draw2d/lib/jquery.contextmenu.js")
                 .Include("~/Scripts/draw2d/lib/rgbcolor.js")
-                .Include("~/Scripts/draw2d/lib/canvg.js")
-                .Include("~/Scripts/draw2d/lib/Class.js")
+                .Include("~/Scripts/draw2d/lib/patched_canvg.js")
+                .Include("~/Scripts/draw2d/lib/patched_Class.js")
                 .Include("~/Scripts/draw2d/lib/json2.js")
-                .Include("~/Scripts/draw2d/lib/pathfinding-browser.min.js"));
+                .Include("~/Scripts/draw2d/lib/pathfinding-browser.min.js")
+                .Include("~/Scripts/draw2d/lib/draw2d.js"));
 
 
 
@@ -51,9 +57,7 @@ namespace FlowMakerAngularPoc.App
 
             #region CSS
             bundles.Add(new StyleBundle("~/Content/css")
-                .Include("~/Content/ui-bootstrap-csp.css")
                 .Include("~/Content/site.css")
-                .Include("~/Content/styles.less")
                 .Include("~/Content/contextmenu.css")
                 );
 
